@@ -182,9 +182,9 @@
                     <option value="easy">かんたん</option>
                     <option value="normal" selected>そこそこ</option>
                     <option value="hard">強い</option>
-                    </select>
+                </select>
             </div>
-            <button id="start-button">ゲーム開始（計50枚勝負）</button>
+            <button id="start-button">ゲーム開始（計100枚勝負）</button>
             <button id="reset-button" style="background-color: #778899;">🔄 最初からやり直す</button>
             <button id="next-round-button">▶️ 次の句へ</button> 
         </div>
@@ -233,7 +233,8 @@
         let playerScore = 0;
         let cpuScore = 0;
         let currentRound = 0;
-        const MAX_ROUNDS = 50; 
+        // 修正点1: 50から100に変更 (全首出題に対応)
+        const MAX_ROUNDS = 100; 
         let isReading = false;
         let isGameActive = false;
         let correctAnswerId = null;
@@ -241,15 +242,11 @@
         let availableCards = []; 
         let currentReadingTime = 0; 
 
-        // CPUの反応時間設定 (「鬼強い」削除済み)
+        // CPUの反応時間設定 (前回修正済み)
         const difficultySettings = {
-            // 読み終わり (約10秒) + 3秒後 (13000ms) に確実に取る
             easy: { minDelay: 13000, maxDelay: 13000, missChance: 0.1 }, 
-            // 読み終わり (約10秒) から 1.5秒後 (11500ms) に取る
             normal: { minDelay: 11500, maxDelay: 11500, missChance: 0.05 }, 
-            // 読み上げ開始5秒後 (5000ms) から 読み終わり直前 (約9000ms) の間でランダムに取る
             hard: { minDelay: 5000, maxDelay: 9000, missChance: 0.01 }, 
-            // oni の設定は削除されました。
         };
 
         const scorePlayerEl = document.getElementById('player-score');
@@ -288,9 +285,9 @@
         function startGame() {
             if (isGameActive) return;
             
-            // KARUTA_DATAの枚数をチェック
-            if (KARUTA_DATA.length < MAX_ROUNDS + 2) {
-                alert(`エラー：KARUTA_DATAのデータが不足しています。最低${MAX_ROUNDS + 2}枚必要です。現在${KARUTA_DATA.length}枚です。`);
+            // KARUTA_DATAの枚数をチェック (100枚必要)
+            if (KARUTA_DATA.length < 100) {
+                alert(`エラー：百人一首100首すべてのデータが不足しています。現在${KARUTA_DATA.length}枚です。`);
                 return;
             }
 
@@ -298,8 +295,10 @@
             cpuScore = 0;
             currentRound = 0;
             
+            // 100首をランダムにシャッフル
             const shuffledKaruta = [...KARUTA_DATA].sort(() => Math.random() - 0.5);
-            availableCards = shuffledKaruta.slice(0, MAX_ROUNDS); 
+            // 修正点2: sliceせず、シャッフルした100枚すべてをavailableCardsとする
+            availableCards = shuffledKaruta; 
             
             isGameActive = true;
             scorePlayerEl.textContent = playerScore;
@@ -316,7 +315,7 @@
         }
 
         /**
-         * ゲームをリセット（初期状態に戻す）する
+         * ゲームをリセット（初期状態に戻す）する (省略)
          */
         function resetGame() {
             if (isGameActive && !confirm('本当にゲームをリセットして最初からやり直しますか？')) {
@@ -337,7 +336,7 @@
             scorePlayerEl.textContent = '0';
             scoreCpuEl.textContent = '0';
             readingTextEl.textContent = '「ゲーム開始」ボタンを押して、遊んでみよう！';
-            instructionsEl.textContent = '難易度を選んでね。計50枚勝負です。';
+            instructionsEl.textContent = '難易度を選んでね。計100枚勝負です。'; // UIメッセージ修正
             cardOptionsEl.innerHTML = '';
             meaningDisplayEl.style.opacity = '0';
             
@@ -361,16 +360,18 @@
             }
 
             currentRound++; 
-            readingTextEl.textContent = `第 ${currentRound} 回戦 (${MAX_ROUNDS}戦中)...`;
+            // MAX_ROUNDSが100になったため、表示も100に
+            readingTextEl.textContent = `第 ${currentRound} 回戦 (${MAX_ROUNDS}戦中)...`; 
             cardOptionsEl.innerHTML = '';
             meaningDisplayEl.style.opacity = '0';
             isReading = true; 
             clearTimeout(cpuTimeout);
             
+            // availableCardsは100枚あり、currentRound-1 (0から99) は有効なインデックス。
             const correctCard = availableCards[currentRound - 1]; 
             
             if (!correctCard) {
-                readingTextEl.innerHTML = `致命的なエラー: ${currentRound}回戦目の句データがリストから見つかりません。KARUTA_DATAのデータ量が不足している可能性があります。`;
+                readingTextEl.innerHTML = `致命的なエラー: ${currentRound}回戦目の句データがリストから見つかりません。`;
                 endGame();
                 return;
             }
@@ -378,8 +379,10 @@
             correctAnswerId = correctCard.id;
             
             let incorrectCards = [];
+            // 間違い札の候補は、現在の正解札以外全て
             const allIncorrectCandidates = KARUTA_DATA.filter(card => card.id !== correctAnswerId);
 
+            // 間違い札を2枚選択
             while (incorrectCards.length < 2 && allIncorrectCandidates.length > 0) {
                 const randomIndex = Math.floor(Math.random() * allIncorrectCandidates.length);
                 const selectedCard = allIncorrectCandidates[randomIndex];
@@ -399,7 +402,7 @@
         }
 
         /**
-         * 札のDOM要素を作成
+         * 札のDOM要素を作成 (省略)
          */
         function createCardElement(card, index) {
             const cardEl = document.createElement('div');
@@ -424,7 +427,7 @@
         }
 
         /**
-         * 読み上げ（上の句の表示と音声）を開始
+         * 読み上げ（上の句の表示と音声）を開始 (省略)
          */
         function startReading(card) {
             const kamiTextLines = card.kami.split('\n');
@@ -448,7 +451,7 @@
         }
 
         /**
-         * CPUの反応ロジック
+         * CPUの反応ロジック (省略)
          */
         function setCpuReaction(correctId) {
             const diff = difficultySelectEl.value;
@@ -482,7 +485,7 @@
 
 
         /**
-         * 札をクリック/選択した時の処理
+         * 札をクリック/選択した時の処理 (省略)
          */
         function handleCardClick(selectedId, selector, index) {
             if (!isReading) return;
@@ -547,7 +550,7 @@
         }
 
         /**
-         * ゲーム終了処理
+         * ゲーム終了処理 (省略)
          */
         function endGame() {
             isGameActive = false;
@@ -577,7 +580,7 @@
         nextRoundButtonEl.addEventListener('click', nextRound);
 
         readingTextEl.textContent = '「ゲーム開始」ボタンを押して、遊んでみよう！';
-        instructionsEl.textContent = '難易度を選んでね。計50枚勝負です。';
+        instructionsEl.textContent = '難易度を選んでね。計100枚勝負です。'; // UIメッセージ修正
         resetButtonEl.disabled = true;
         nextRoundButtonEl.style.display = 'none';
 
