@@ -96,7 +96,7 @@
             font-size: 0.9em;
         }
 
-        /* 札の選択肢エリア */
+/* 札の選択肢エリア（修正） */
         #card-options {
             display: flex;
             justify-content: center;
@@ -112,33 +112,43 @@
             border-radius: 8px;
             cursor: pointer;
             transition: transform 0.1s, box-shadow 0.1s, background-color 0.5s;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             font-size: 1.4em;
             line-height: 1.4;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            white-space: pre-wrap;
+            /* white-space: pre-wrap; は card-content に移動 */
             position: relative;
         }
         .karuta-card:hover {
             transform: translateY(-3px);
-            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            white-space: pre-wrap; /* ここで改行を有効にする */
         }
         .card-text {
             line-height: 1.4;
         }
+        
+        /* 💡 修正後のフリガナスタイル */
         .furigana {
-            font-size: 0.4em;
-            position: absolute;
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
+            font-size: 0.45em; /* やや大きく */
             opacity: 0.8;
             color: #333;
+            /* 修正: 絶対位置指定を削除し、ブロック要素として上の句の上に配置 */
+            display: block; 
+            margin-bottom: 5px; /* 下の句本文との間に少しスペース */
+            text-align: center;
+            line-height: 1.2;
         }
-
         /* 句の意味表示エリア */
         #meaning-display {
             background-color: #fff8e1;
@@ -505,10 +515,14 @@
             const furiLines = card.shimo_f.split('\n');
 
             let innerHTML = '';
-            // 最初の行にだけフリガナを表示する（札のデザインをシンプルに保つため）
-            if(furiLines[0]) {
-                innerHTML += `<span class="furigana">${furiLines.join('')}</span>`;
+            
+            // 💡 修正: 下の句のフリガナを結合して、横並びで本文の上に表示
+            const allFurigana = furiLines.join('');
+            if(allFurigana) {
+                // 修正されたフリガナのスタイルを適用
+                innerHTML += `<span class="furigana">${allFurigana}</span>`;
             }
+
             innerHTML += `<div class="card-content">`;
             for(let i = 0; i < textLines.length; i++) {
                 innerHTML += `<div class="card-text">${textLines[i]}</div>`;
@@ -520,6 +534,8 @@
             return cardEl;
         }
 
+        // ... (省略) ...
+
         /**
          * 読み上げ（上の句の表示と音声）を開始
          */
@@ -528,17 +544,20 @@
             const kamiFuriLines = card.kami_f.split('\n');
             
             let displayHTML = '';
+            
+            // 💡 修正: 上の句のフリガナも一行で表示するよう調整
+            const allKamiFurigana = kamiFuriLines.join(' ');
+             if(allKamiFurigana) {
+                 displayHTML += `<span class="furigana" style="font-size:0.55em; opacity:1; position:relative; transform:none; top:0;">${allKamiFurigana}</span><br>`;
+             }
+            
             for(let i = 0; i < kamiTextLines.length; i++) {
-                if(kamiFuriLines[i]) {
-                    displayHTML += `<span class="furigana" style="font-size:0.5em; opacity:1; position:relative; transform:none; top:0;">${kamiFuriLines[i]}</span><br>`;
-                }
                 displayHTML += `${kamiTextLines[i]}<br>`;
             }
             readingTextEl.innerHTML = displayHTML;
             
             // 読み上げ開始
             speak(card.kami, card.id);
-            // isReading = true は speak 関数内でセットされます
         }
 
         /**
