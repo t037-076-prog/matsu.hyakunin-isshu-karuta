@@ -342,7 +342,7 @@
         let cpuTimeout = null;
         let availableCards = []; 
 
-        // 💡 修正: CPUの反応時間設定 (postReadDelay は読み上げ完了から何秒後かを表す)
+        // 💡 CPUの反応時間設定 (postReadDelay は読み上げ完了から何秒後かを表す)
         const difficultySettings = {
             easy: { postReadDelay: 5000, missChance: 0.1 },      // 5秒後
             normal: { postReadDelay: 3000, missChance: 0.05 },   // 3秒後
@@ -366,8 +366,7 @@
         utterance.lang = 'ja-JP';
 
         /**
-         * 日本語の句を読み上げる
-         * 💡 CPU反応タイマーのセットを統合し、安定化
+         * 日本語の句を読み上げる (純粋な読み上げ機能とする)
          */
         function speak(text, cardId) {
             utterance.text = text.replace(/\n/g, ' '); 
@@ -377,9 +376,6 @@
             
             isReading = true; 
             
-            // 読み上げ開始と同時にCPUの反応タイマーをセット
-            setCpuReaction(cardId, text.length);
-
             window.speechSynthesis.speak(utterance);
         }
 
@@ -536,6 +532,7 @@
 
         /**
          * 読み上げ（上の句の表示と音声）を開始
+         * 💡 CPUタイマーのセットをここで行うことで、音声再生の安定性に依存しない
          */
         function startReading(card) {
             const kamiTextLines = card.kami.split('\n');
@@ -554,6 +551,10 @@
             }
             readingTextEl.innerHTML = displayHTML;
             
+            // 💡 CPUタイマーをここでセット (音声再生とは独立)
+            setCpuReaction(card.id, card.kami.length);
+
+            // 読み上げ開始
             speak(card.kami, card.id);
         }
 
@@ -572,7 +573,7 @@
             let reactionTime;
 
             if (diff === 'hard') {
-                // 強い: 読み上げが終わる直前 (読み上げ推定時間 - 1000ms ～ 0ms)
+                // 強い: 読み上げが終わる直前
                 const jitter = Math.random() * (settings.maxJitter - settings.minJitter) + settings.minJitter;
                 reactionTime = estimatedReadingTime - (settings.maxJitter - jitter); 
                 
@@ -626,7 +627,7 @@
             const wasReading = isReading; 
             isReading = false;
             clearTimeout(cpuTimeout); 
-            window.speechSynthesis.cancel(); 
+            window.speechSynthesis.cancel(); // 読み上げも停止
 
             // 既に取られていた場合（wasReadingがfalseだった場合）は、何もしない
             if (!wasReading && selector === 'player') return;
