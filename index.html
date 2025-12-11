@@ -128,7 +128,14 @@
             transition: opacity 0.5s;
         }
         
-        /* ボタン、難易度設定 */
+        /* ボタン、難易度設定コンテナ */
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
         button, select {
             padding: 10px 15px;
             font-size: 1em;
@@ -163,16 +170,21 @@
 
     <header>
         <h1>🌟 百人一首かるた対戦</h1>
-        <div id="difficulty-setting">
-            <label for="difficulty">🎮 CPUの強さ：</label>
-            <select id="difficulty">
-                <option value="easy">かんたん</option>
-                <option value="normal" selected>そこそこ</option>
-                <option value="hard">強い</option>
-                <option value="oni">鬼強い</option>
-            </select>
+        
+        <div id="controls">
+            <div id="difficulty-setting">
+                <label for="difficulty">🎮 CPUの強さ：</label>
+                <select id="difficulty">
+                    <option value="easy">かんたん</option>
+                    <option value="normal" selected>そこそこ</option>
+                    <option value="hard">強い</option>
+                    <option value="oni">鬼強い</option>
+                </select>
+            </div>
             <button id="start-button">ゲーム開始（計50枚勝負）</button>
+            <button id="reset-button" style="background-color: #778899;">🔄 最初からやり直す</button>
         </div>
+        
     </header>
 
     <div id="header-area">
@@ -333,6 +345,7 @@
         const meaningDisplayEl = document.getElementById('meaning-display');
         const difficultySelectEl = document.getElementById('difficulty');
         const startButtonEl = document.getElementById('start-button');
+        const resetButtonEl = document.getElementById('reset-button'); // 追加
         const resultModalEl = document.getElementById('result-modal');
         const finalMessageEl = document.getElementById('final-message');
 
@@ -369,9 +382,43 @@
             meaningDisplayEl.style.opacity = '0';
             startButtonEl.disabled = true;
             difficultySelectEl.disabled = true;
+            resetButtonEl.disabled = false; // リセットボタンを有効にする
 
             setTimeout(nextRound, 2000);
         }
+
+        /**
+         * ゲームをリセット（初期状態に戻す）する
+         */
+        function resetGame() {
+            if (isGameActive && !confirm('本当にゲームをリセットして最初からやり直しますか？')) {
+                return;
+            }
+            
+            window.speechSynthesis.cancel(); // 読み上げを停止
+            clearTimeout(cpuTimeout); // CPUのタイマーをクリア
+
+            playerScore = 0;
+            cpuScore = 0;
+            currentRound = 0;
+            isReading = false;
+            isGameActive = false;
+            correctAnswerId = null;
+            availableCards = [];
+            
+            scorePlayerEl.textContent = '0';
+            scoreCpuEl.textContent = '0';
+            readingTextEl.textContent = '「ゲーム開始」ボタンを押して、遊んでみよう！';
+            instructionsEl.textContent = '難易度を選んでね。計50枚勝負です。';
+            cardOptionsEl.innerHTML = ''; // 札を削除
+            meaningDisplayEl.style.opacity = '0'; // 意味表示を隠す
+            
+            startButtonEl.disabled = false; // スタートボタンを有効化
+            difficultySelectEl.disabled = false;
+            resetButtonEl.disabled = true; // リセットボタンを無効化
+            resultModalEl.style.display = 'none'; // 結果モーダルを隠す
+        }
+
 
         /**
          * 次のラウンド（句の出題）へ進む
@@ -568,6 +615,9 @@
          */
         function endGame() {
             isGameActive = false;
+            startButtonEl.disabled = true; // 終了後もスタートボタンは無効
+            difficultySelectEl.disabled = true;
+
             let message;
 
             if (playerScore > cpuScore) {
@@ -580,18 +630,18 @@
 
             finalMessageEl.innerHTML = message;
             resultModalEl.style.display = 'flex';
-            startButtonEl.disabled = false;
-            difficultySelectEl.disabled = false;
         }
 
         // =======================================
         // イベントリスナー
         // =======================================
         startButtonEl.addEventListener('click', startGame);
+        resetButtonEl.addEventListener('click', resetGame); // リセット機能の追加
 
         // ゲーム開始前の初期表示
         readingTextEl.textContent = '「ゲーム開始」ボタンを押して、遊んでみよう！';
         instructionsEl.textContent = '難易度を選んでね。計50枚勝負です。';
+        resetButtonEl.disabled = true; // 最初はリセットできないように無効化
 
     </script>
 </body>
