@@ -3,170 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>百人一首かるた対戦ゲーム</title>
+    <title>🌟 百人一首かるた対戦ゲーム</title>
     <style>
         /* =======================================
-           1. CSS: デザインと巻物テーマの適用
+           1. CSS: デザイン設定
            ======================================= */
         :root {
-            --color-paper: #FDFDF5; 
-            --color-accent: #7D7C33; 
-            --color-text: #1A1A1A; 
-            --color-frame: #B88849; 
-            --color-highlight: #E0533C; 
+            --color-primary: #8B4513; /* 茶色 (木目調) */
+            --color-secondary: #FFD700; /* 金色 */
+            --color-background: #F5F5DC; /* ベージュ */
+            --color-paper: #FFFFF0; /* 札の色 */
+            --color-frame: #A0522D; /* フレーム色 */
+            --color-highlight: #4CAF50; /* 成功時の緑 */
+            --color-accent: #FF6347; /* 失敗時の赤 */
         }
-
         body {
-            font-family: 'serif', 'Noto Serif JP', sans-serif; 
-            background-color: var(--color-paper);
-            color: var(--color-text);
+            font-family: 'Yu Gothic', 'Meiryo', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-primary);
             margin: 0;
             padding: 20px;
             text-align: center;
-            border-top: 5px solid var(--color-accent);
-            border-bottom: 5px solid var(--color-accent);
-            min-height: 100vh;
         }
-
-        #header-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        header {
             margin-bottom: 20px;
-            padding: 10px 0;
+            border-bottom: 3px solid var(--color-frame);
+            padding-bottom: 15px;
         }
-
-        .score-box {
-            font-size: 1.2em;
-            font-weight: bold;
-            border: 2px solid var(--color-frame);
-            padding: 10px 20px;
-            background-color: rgba(255, 255, 255, 0.7);
+        h1 {
+            color: var(--color-primary);
+            font-size: 1.8em;
+            margin-top: 0;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
             border-radius: 5px;
+            background-color: var(--color-frame);
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
         }
-
-        /* 読み上げエリア（上の句表示） */
-        #reading-area {
-            margin: 10px auto; 
-            padding: 15px; 
-            background-color: rgba(255, 255, 255, 0.85);
-            border: 3px solid var(--color-frame);
-            max-width: 800px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            min-height: 100px;
+        button:hover:not(:disabled) {
+            background-color: #8B4513;
         }
-
-        #reading-text {
-            font-size: 1.8em; 
-            font-weight: bold;
-            margin-bottom: 5px;
-            line-height: 1.4;
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         
+        #header-area {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .score-box {
+            padding: 10px 20px;
+            border: 2px solid var(--color-frame);
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: var(--color-paper);
+        }
+        
+        /* 句の表示エリア (上の句と下の句カードエリアの間の中心) */
+        #reading-area {
+            background-color: var(--color-paper);
+            border: 3px solid var(--color-frame);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #reading-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
         #instructions {
+            margin-top: 10px;
+            color: #666;
             font-size: 0.9em;
-            color: var(--color-highlight);
-            margin-top: 5px;
         }
 
         /* 札の選択肢エリア */
         #card-options {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
-
         .karuta-card {
-            width: 250px;
-            min-height: 180px;
-            padding: 15px;
-            border: 5px solid var(--color-frame);
             background-color: var(--color-paper);
+            border: 3px solid var(--color-frame);
+            width: 150px;
+            min-height: 200px;
+            padding: 15px 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            border-radius: 5px;
+            transition: transform 0.1s, box-shadow 0.1s, background-color 0.5s;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            font-size: 1.4em;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            white-space: pre-wrap;
             position: relative;
-            text-align: left;
         }
-
         .karuta-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
         }
-
         .card-text {
-            font-size: 1.1em;
-            font-weight: bold;
-            line-height: 1.5;
-            white-space: pre-line; 
+            line-height: 1.4;
         }
-
         .furigana {
-            display: block;
-            font-size: 0.8em;
-            color: var(--color-text);
-            opacity: 0.7;
-            margin-bottom: 5px;
+            font-size: 0.4em;
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.8;
+            color: #333;
         }
 
         /* 句の意味表示エリア */
         #meaning-display {
-            margin-top: 30px;
-            font-size: 1.1em;
+            background-color: #fff8e1;
+            border: 1px dashed var(--color-frame);
             padding: 15px;
-            border: 2px dashed var(--color-accent);
-            background-color: rgba(190, 190, 190, 0.1);
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            border-radius: 8px;
+            margin-top: 20px;
             opacity: 0;
             transition: opacity 0.5s;
-        }
-        
-        /* ボタン、難易度設定コンテナ */
-        #controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
+            text-align: left;
+            white-space: pre-wrap;
         }
 
-        button, select {
-            padding: 10px 15px;
-            font-size: 1em;
-            background-color: var(--color-accent);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin: 5px;
-        }
-
-        button:hover, select:hover {
-            background-color: #646328;
-        }
-        
-        /* 次の句へボタンのスタイル */
-        #next-round-button {
-            background-color: #338877;
-            display: none;
-        }
-
+        /* 結果モーダル */
         #result-modal {
-            display:none; 
-            position:fixed; 
-            top:0; 
-            left:0; 
-            width:100%; 
-            height:100%; 
-            background:rgba(0,0,0,0.7); 
-            z-index:100; 
-            align-items:center; 
-            justify-content:center;
+            display: none; 
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -179,14 +177,14 @@
             <div id="difficulty-setting">
                 <label for="difficulty">🎮 CPUの強さ：</label>
                 <select id="difficulty">
-                    <option value="easy">かんたん</option>
-                    <option value="normal" selected>そこそこ</option>
-                    <option value="hard">強い</option>
+                    <option value="easy">かんたん (5秒後)</option>
+                    <option value="normal" selected>そこそこ (3秒後)</option>
+                    <option value="hard">強い (読み終わり直前)</option>
                 </select>
             </div>
             <button id="start-button">ゲーム開始（計100枚勝負）</button>
             <button id="reset-button" style="background-color: #778899;">🔄 最初からやり直す</button>
-            <button id="next-round-button">▶️ 次の句へ</button> 
+            <button id="next-round-button" style="display:none;">▶️ 次の句へ</button> 
         </div>
         
     </header>
@@ -212,8 +210,6 @@
             <button onclick="location.reload()">もう一度遊ぶ</button>
         </div>
     </div>
-
-    <audio id="audio-player" style="display:none;"></audio>
     
     <script>
         /* =======================================
@@ -221,7 +217,6 @@
            ======================================= */
 
         // **百人一首データ (1番から100番までの全データ)**
-        // **このデータが不足していたため、エラーが発生していました。以下に完全な100首を記載します。**
         const KARUTA_DATA = [
             { id: 1, kami: "秋の田の\nかりほの庵の\n苫をあらみ", kami_f: "あきのたの\nかりほのいおの\nとまをあらみ", shimo: "わが衣手は\n露にぬれつつ", shimo_f: "わがころもでは\nつゆにぬれつつ", meaning: "秋の田のかりほの庵は屋根の目が粗いので、私の袖は夜露に濡れ続けている。" },
             { id: 2, kami: "春すぎて\n夏来にけらし\n白妙の", kami_f: "はるすぎて\nなつきにけらし\nしろたえの", shimo: "衣ほすてふ\n天の香具山", shimo_f: "ころもほすちょう\nあまのかぐやま", meaning: "春が過ぎて夏が来たらしい。白い衣が干されているという天の香具山よ。" },
@@ -317,7 +312,7 @@
             { id: 92, kami: "わが袖は\n潮干に見えぬ\n沖の石の", kami_f: "わがそでは\nしおひにみえぬ\nおきのいしの", shimo: "人こそ知らね\nかわくまもなし", shimo_f: "ひとこそしらね\nかわくまもなし", meaning: "私の袖は、潮が引いても見えない沖の石のように、人には知られないけれど、涙で乾く暇がない。" },
             { id: 93, kami: "世の中は\n常にもがもな\n渚漕ぐ", kami_f: "よのなかは\nつねにもがもな\nなぎさこぐ", shimo: "海人の小舟の\n綱手かなしも", shimo_f: "あまのこぶねの\nつなでかなしも", meaning: "この世はいつまでも変わらないものであってほしいなあ。渚を漕ぎ進む漁師の小舟を引く綱のように、頼りなく切ないことだ。" },
             { id: 94, kami: "みよし野の\n山の白雪\n踏み分けて", kami_f: "みよしのの\nやまのしらゆき\nふみわけて", shimo: "入りにし人ぞ\n音もなくなりぬ", shimo_f: "いりにしひとぞ\nおともなくなりぬ", meaning: "吉野の山に積もった白雪を踏み分けて入って行った人は、音信不通になってしまった。" },
-            { id: 95, kami: "おほけなく\nうき世の民に\nおほふかな", kami_f: "おおけなく\nうきよのたみに\nおおふかな", shimo: "わが立つ杣に\n墨染の袖", shimo_f: "わがたつそまに\nすみぞめのそで", meaning: "身の程知らずにも、この憂き世の民を覆い守ってやろうか。私が修行している比叡山で着る墨染めの衣の袖で。（民衆の苦しみを救いたいという慈悲の心）" },
+            { id: 95, kami: "おほけなく\nうき世の民に\nおほふかな", kami_f: "おおけなく\nうきよのたみに\nおほふかな", shimo: "わが立つ杣に\n墨染の袖", shimo_f: "わがたつそまに\nすみぞめのそで", meaning: "身の程知らずにも、この憂き世の民を覆い守ってやろうか。私が修行している比叡山で着る墨染めの衣の袖で。（民衆の苦しみを救いたいという慈悲の心）" },
             { id: 96, kami: "花さそふ\n嵐の庭の\n雪ならで", kami_f: "はなさそう\nあらしのにはの\nゆきならで", shimo: "ふりゆくものは\nわが身なりけり", shimo_f: "ふりゆくものは\nわがみなりけり", meaning: "桜の花を誘って散らす嵐が吹く庭の、花吹雪（雪）ではなく、降り積もっていくものは、我が身の老い（年齢）であったことよ。" },
             { id: 97, kami: "来ぬ人を\n松帆の浦の\n夕なぎに", kami_f: "こぬひとを\nまつほのうらの\nゆうなぎに", shimo: "焼くや藻塩の\n身もこがれつつ", shimo_f: "やくやもしおの\nみもこがれつつ", meaning: "来ないあの人を（松ほ＝待つを）待つ、松帆の浦の夕凪に焼く藻塩のように、私も身を焦がしながら恋い焦がれている。" },
             { id: 98, kami: "風そよぐ\nならの小川の\n夕暮れは", kami_f: "かぜそよぐ\nならのおがわの\nゆうぐれは", shimo: "みそぎぞ夏の\nしるしなりける", shimo_f: "みそぎぞなつの\nしるしなりける", meaning: "風がそよそよと音を立てるならの小川の夕暮れは、涼しげで秋のようだが、行われているみそぎ（祓え）だけが夏のしるしであるよ。" },
@@ -328,22 +323,20 @@
         let playerScore = 0;
         let cpuScore = 0;
         let currentRound = 0;
-        // 100首全てを出題対象とする
         const MAX_ROUNDS = 100; 
         let isReading = false;
         let isGameActive = false;
         let correctAnswerId = null;
         let cpuTimeout = null;
         let availableCards = []; 
-        let currentReadingTime = 0; 
 
-        // CPUの反応時間設定 (前回調整済み)
+        // 💡 修正: CPUの反応時間設定を「読み上げ完了後」のディレイとして定義
         const difficultySettings = {
-            easy: { minDelay: 13000, maxDelay: 13000, missChance: 0.1 }, 
-            normal: { minDelay: 11500, maxDelay: 11500, missChance: 0.05 }, 
-            hard: { minDelay: 5000, maxDelay: 9000, missChance: 0.01 }, 
+            easy: { postReadDelay: 5000, missChance: 0.1 },      // 5秒後
+            normal: { postReadDelay: 3000, missChance: 0.05 },   // 3秒後
+            hard: { postReadDelay: 0, minJitter: 0, maxJitter: 1000, missChance: 0.01 }, // 読み終わり直後～1秒
         };
-        // ... (以下、DOM要素の取得、Utteranceの設定は変更なし) ...
+        
         const scorePlayerEl = document.getElementById('player-score');
         const scoreCpuEl = document.getElementById('cpu-score');
         const readingTextEl = document.getElementById('reading-text');
@@ -362,15 +355,18 @@
 
         /**
          * 日本語の句を読み上げる
+         * 💡 修正: 読み上げ完了後にCPU反応処理を開始するように変更
          */
-        function speak(text, callback) {
+        function speak(text, cardId) {
             utterance.text = text.replace(/\n/g, ' '); 
             
             utterance.onend = () => {
-                isReading = false;
-                if (callback) callback();
+                // 読み上げが完全に終わった後、CPUの反応タイマーをセット
+                setCpuReaction(cardId);
             };
-
+            
+            // 読み上げ開始時にisReadingをtrueにし、プレイヤーの入力を許可する
+            isReading = true; 
             window.speechSynthesis.speak(utterance);
         }
 
@@ -380,9 +376,8 @@
         function startGame() {
             if (isGameActive) return;
             
-            // 修正済み：データが100枚あるかチェック
             if (KARUTA_DATA.length < 100) {
-                alert(`致命的なエラー：百人一首100首すべてのデータが不足しています。現在${KARUTA_DATA.length}枚です。`);
+                alert(`致命的なエラー：百人一首100首すべてのデータが不足しています。現在 ${KARUTA_DATA.length} 枚です。`);
                 return;
             }
 
@@ -390,16 +385,14 @@
             cpuScore = 0;
             currentRound = 0;
             
-            // 100首をランダムにシャッフル
             const shuffledKaruta = [...KARUTA_DATA].sort(() => Math.random() - 0.5);
-            // 100枚すべてを出題リストとする
             availableCards = shuffledKaruta; 
             
             isGameActive = true;
             scorePlayerEl.textContent = playerScore;
             scoreCpuEl.textContent = cpuScore;
             readingTextEl.textContent = "第一回戦を開始します。";
-            instructionsEl.textContent = '🔊 音声を聞いて、読み上げた上の句に合う下の句を取ろう。（読み上げ中でも取っても良いよ！）';
+            instructionsEl.textContent = '🔊 音声を聞いて、読み上げた上の句に合う下の句を早く取ろう！';
             meaningDisplayEl.style.opacity = '0';
             startButtonEl.disabled = true;
             difficultySelectEl.disabled = true;
@@ -410,7 +403,7 @@
         }
 
         /**
-         * ゲームをリセット（初期状態に戻す）する 
+         * ゲームをリセット（初期状態に戻す）する
          */
         function resetGame() {
             if (isGameActive && !confirm('本当にゲームをリセットして最初からやり直しますか？')) {
@@ -449,7 +442,6 @@
         function nextRound() {
             nextRoundButtonEl.style.display = 'none'; 
 
-            // 100回戦を超えたら終了
             if (currentRound >= MAX_ROUNDS) {
                 endGame();
                 return;
@@ -459,14 +451,11 @@
             readingTextEl.textContent = `第 ${currentRound} 回戦 (${MAX_ROUNDS}戦中)...`; 
             cardOptionsEl.innerHTML = '';
             meaningDisplayEl.style.opacity = '0';
-            isReading = true; 
             clearTimeout(cpuTimeout);
             
-            // availableCardsは100枚あるため、currentRound-1 (0から99) は有効なインデックス。
             const correctCard = availableCards[currentRound - 1]; 
             
             if (!correctCard) {
-                // ここでエラーが出る可能性は非常に低い (データ不足が解消されているため)
                 readingTextEl.innerHTML = `致命的なエラー: ${currentRound}回戦目の句データがリストから見つかりません。`;
                 endGame();
                 return;
@@ -475,10 +464,9 @@
             correctAnswerId = correctCard.id;
             
             let incorrectCards = [];
-            // 間違い札の候補は、現在の正解札以外全て
             const allIncorrectCandidates = KARUTA_DATA.filter(card => card.id !== correctAnswerId);
 
-            // 間違い札を2枚選択
+            // 誤答の選択肢を2つ選ぶ
             while (incorrectCards.length < 2 && allIncorrectCandidates.length > 0) {
                 const randomIndex = Math.floor(Math.random() * allIncorrectCandidates.length);
                 const selectedCard = allIncorrectCandidates[randomIndex];
@@ -498,32 +486,42 @@
         }
 
         /**
-         * 札のDOM要素を作成 (省略)
+         * 札のDOM要素を作成
          */
         function createCardElement(card, index) {
             const cardEl = document.createElement('div');
             cardEl.className = 'karuta-card';
             cardEl.dataset.id = card.id;
             cardEl.dataset.index = index;
-            cardEl.onclick = () => handleCardClick(card.id, 'player', index);
+            
+            // 💡 修正: クリック時に直接判定関数を呼ぶ
+            cardEl.onclick = (e) => {
+                // イベント伝播を停止して、二重処理を防ぐ
+                e.stopPropagation();
+                handleCardClick(card.id, 'player', index);
+            };
             
             const textLines = card.shimo.split('\n');
             const furiLines = card.shimo_f.split('\n');
 
             let innerHTML = '';
+            // 最初の行にだけフリガナを表示する（札のデザインをシンプルに保つため）
+            if(furiLines[0]) {
+                innerHTML += `<span class="furigana">${furiLines.join('')}</span>`;
+            }
+            innerHTML += `<div class="card-content">`;
             for(let i = 0; i < textLines.length; i++) {
-                if(furiLines[i]) {
-                    innerHTML += `<span class="furigana">${furiLines[i]}</span>`;
-                }
                 innerHTML += `<div class="card-text">${textLines[i]}</div>`;
             }
+            innerHTML += `</div>`;
+
 
             cardEl.innerHTML = innerHTML;
             return cardEl;
         }
 
         /**
-         * 読み上げ（上の句の表示と音声）を開始 (省略)
+         * 読み上げ（上の句の表示と音声）を開始
          */
         function startReading(card) {
             const kamiTextLines = card.kami.split('\n');
@@ -532,34 +530,41 @@
             let displayHTML = '';
             for(let i = 0; i < kamiTextLines.length; i++) {
                 if(kamiFuriLines[i]) {
-                    displayHTML += `<span class="furigana" style="font-size:0.5em; opacity:1;">${kamiFuriLines[i]}</span><br>`;
+                    displayHTML += `<span class="furigana" style="font-size:0.5em; opacity:1; position:relative; transform:none; top:0;">${kamiFuriLines[i]}</span><br>`;
                 }
                 displayHTML += `${kamiTextLines[i]}<br>`;
             }
             readingTextEl.innerHTML = displayHTML;
             
-            setCpuReaction(card.id);
-
-            speak(card.kami, () => {
-                // 読み上げ完了時の処理
-            });
-            isReading = true;
+            // 読み上げ開始
+            speak(card.kami, card.id);
+            // isReading = true は speak 関数内でセットされます
         }
 
         /**
-         * CPUの反応ロジック (省略)
+         * CPUの反応ロジック
+         * 💡 修正: 読み上げ完了後に呼び出される
          */
         function setCpuReaction(correctId) {
             const diff = difficultySelectEl.value;
             const settings = difficultySettings[diff];
             
-            const reactionTime = Math.random() * (settings.maxDelay - settings.minDelay) + settings.minDelay;
+            let reactionTime;
+
+            if (diff === 'hard') {
+                // 強い: 0ms～1000ms のランダムな反応時間
+                reactionTime = Math.random() * (settings.maxJitter - settings.minJitter) + settings.minJitter;
+            } else {
+                // かんたん/そこそこ: 読み上げ完了後のディレイを設定
+                reactionTime = settings.postReadDelay; 
+            }
             
             cpuTimeout = setTimeout(() => {
                 let cpuChoiceId;
                 const isMiss = Math.random() < settings.missChance;
                 
                 if (isMiss) {
+                    // 間違いを引く
                     const incorrectOptions = Array.from(cardOptionsEl.children)
                         .map(el => parseInt(el.dataset.id))
                         .filter(id => id !== correctId);
@@ -567,28 +572,36 @@
                     if (incorrectOptions.length > 0) {
                         cpuChoiceId = incorrectOptions[Math.floor(Math.random() * incorrectOptions.length)];
                     } else {
-                        cpuChoiceId = correctId;
+                        cpuChoiceId = correctId; // 間違える札がない場合は正解を取る
                     }
                 } else {
+                    // 正解を引く
                     cpuChoiceId = correctId;
                 }
 
-                if (isReading) {
+                // CPUが処理を実行する直前で、まだ読み上げが終了し、ゲームがアクティブか再確認
+                if (isGameActive && !isReading) { 
                     handleCardClick(cpuChoiceId, 'cpu', -1);
                 }
+                // isReadingがfalse（プレイヤーが先に取った）場合は何もしない
             }, reactionTime);
         }
 
 
         /**
-         * 札をクリック/選択した時の処理 (省略)
+         * 札をクリック/選択した時の処理 (反応不良修正ロジック)
          */
         function handleCardClick(selectedId, selector, index) {
-            if (!isReading) return;
+            // 💡 修正: 判定開始時にisReadingフラグを即座にチェックし、クリアする
+            if (!isGameActive) return; 
             
+            // isReadingがfalse（既に誰かが取った後）であれば、二重処理を防ぐために終了
+            if (!isReading && selector === 'player') return; 
+
+            // 誰かがクリック/反応したら、CPUタイマーと音声読み上げを即座に停止
             clearTimeout(cpuTimeout); 
             window.speechSynthesis.cancel(); 
-            isReading = false;
+            isReading = false; // 判定が始まったらすぐにフラグを落とす
 
             const isCorrect = (selectedId === correctAnswerId);
             const cardElements = Array.from(cardOptionsEl.children);
@@ -607,28 +620,31 @@
                 
                 const correctCardEl = cardElements.find(el => parseInt(el.dataset.id) === selectedId);
                 if (correctCardEl) {
-                    correctCardEl.style.backgroundColor = '#E6E6FA'; 
+                    correctCardEl.style.backgroundColor = 'var(--color-highlight)'; 
                 }
 
             } else {
                 
                 if (selector === 'cpu') {
+                    // CPUが間違えた場合、プレイヤーの得点
                     playerScore++;
                     scorePlayerEl.textContent = playerScore;
                     resultMessage = '🎊 CPUが間違えたのであなたの勝ち！';
                 } else {
+                    // プレイヤーが間違えた場合、CPUの得点
                     cpuScore++;
                     scoreCpuEl.textContent = cpuScore;
                     resultMessage = '❌ 間違えた！CPUの勝ち！';
                 }
                 
+                // プレイヤーが取った札を赤く、正解の札を緑にハイライト
                 if (selector === 'player' && index !== -1) {
-                    cardElements[index].style.backgroundColor = '#FFDDE0'; 
+                    cardElements[index].style.backgroundColor = 'var(--color-accent)'; 
                 }
                 
                 const correctCardEl = cardElements.find(el => parseInt(el.dataset.id) === correctAnswerId);
                 if (correctCardEl) {
-                    correctCardEl.style.backgroundColor = '#D0FFD0'; 
+                    correctCardEl.style.backgroundColor = '#D0FFD0'; // 正解は薄い緑
                 }
             }
             
@@ -638,6 +654,7 @@
             meaningDisplayEl.innerHTML = `**【句の意味】** ${takenCard.meaning}`;
             meaningDisplayEl.style.opacity = '1';
 
+            // 次のラウンドへ進むボタンの表示
             if (currentRound < MAX_ROUNDS) {
                 nextRoundButtonEl.style.display = 'inline-block';
             } else {
@@ -646,7 +663,7 @@
         }
 
         /**
-         * ゲーム終了処理 (省略)
+         * ゲーム終了処理
          */
         function endGame() {
             isGameActive = false;
@@ -675,10 +692,8 @@
         resetButtonEl.addEventListener('click', resetGame);
         nextRoundButtonEl.addEventListener('click', nextRound);
 
-        readingTextEl.textContent = '「ゲーム開始」ボタンを押して、遊んでみよう！';
-        instructionsEl.textContent = '難易度を選んでね。計100枚勝負です。'; 
+        // 初期表示設定
         resetButtonEl.disabled = true;
-        nextRoundButtonEl.style.display = 'none';
 
     </script>
 </body>
